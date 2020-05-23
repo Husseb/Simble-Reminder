@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name"> تطبيق الملاحظات البسيط</string>
+    <string name="title">العنوان</string>
+    <string name="description">التفاصيل</string>
+    <string name="time">الوقت</string>
+    <string name="create_note">انشاء ملاحظة</string>
+    <string name="add_note">اضافة ملاحظة</string>
+    <string name="title_hint">أدخل العنوان…</string>
+    <string name="description_hint">أدخل التفاصيل…</string>
+</resources>

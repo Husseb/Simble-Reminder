@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "22661580870",
+    "firebase_url": "https://simble-note-app-90b6c.firebaseio.com",
+    "project_id": "simble-note-app-90b6c",
+    "storage_bucket": "simble-note-app-90b6c.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:22661580870:android:b5d136a0c29ba0164ca247",
+        "android_client_info": {
+          "package_name": "com.example.simblenoteapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "22661580870-ts4ejrbdfrn49n5g4f2jmu14v5b8rmgr.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDK23q_HpJQIXxyadMWqo5acnzV1CXjQF8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "22661580870-ts4ejrbdfrn49n5g4f2jmu14v5b8rmgr.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
