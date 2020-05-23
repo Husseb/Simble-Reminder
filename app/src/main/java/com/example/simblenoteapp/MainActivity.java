@@ -69,7 +69,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        Query query = db.collection("note").orderBy("time").whereGreaterThan("time", String.valueOf(System.currentTimeMillis()));
+        Query query = db.collection("note").orderBy("id");
         FirestoreRecyclerOptions<Note> options = null;
 
         options = new FirestoreRecyclerOptions.Builder<Note>()
@@ -127,6 +127,9 @@ public class MainActivity extends AppCompatActivity {
                             reminedDay = ff;
 
                             holder.signLate.setBackgroundColor(0xffFFCD36);
+                        } else if (ff == 0) {
+                            holder.signLate.setBackgroundColor(0xffFB3A3A);
+                            reminedDay = ff;
                         } else {
                             reminedDay = ff;
 
@@ -134,18 +137,18 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }
 
-                } else if (d > 0) {
+                } else if (d >= 0) {
                     if (d >= 7) {
                         reminedDay = d;
-
                         holder.signLate.setBackgroundColor(0xff92E334);
                     } else if (d >= 3) {
                         reminedDay = d;
-
                         holder.signLate.setBackgroundColor(0xffFFCD36);
+                    } else if (d == 0) {
+                        holder.signLate.setBackgroundColor(0xffFB3A3A);
+                        reminedDay = d;
                     } else {
                         reminedDay = d;
-
                         holder.signLate.setBackgroundColor(0xffFB3A3A);
                     }
                 }
@@ -159,13 +162,17 @@ public class MainActivity extends AppCompatActivity {
                     public void onClick(View v) {
 
                         if (finalReminedYear > 0) {
-                            Toast.makeText(MainActivity.this, "reminded" + finalReminedYear + " Year", Toast.LENGTH_SHORT).show();
-                        } else if (finalRemiendMonth > 0) {
-                            Toast.makeText(MainActivity.this, "reminded" + finalRemiendMonth + " Month", Toast.LENGTH_SHORT).show();
-
+                            Toast.makeText(MainActivity.this, "reminded " + finalReminedYear + " Year", Toast.LENGTH_SHORT).show();
                         } else if (finalReminedDay > 0) {
-                            Toast.makeText(MainActivity.this, "reminded" + finalReminedDay + " Day", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(MainActivity.this, "reminded " + finalReminedDay + " Day", Toast.LENGTH_SHORT).show();
 
+                        }  else if (finalReminedDay == 0) {
+                            Toast.makeText(MainActivity.this, "Thats Today", Toast.LENGTH_SHORT).show();
+
+                        } else if (finalRemiendMonth > 0) {
+                            Toast.makeText(MainActivity.this, "reminded " + finalRemiendMonth + " Month", Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(MainActivity.this, "The Time Lasted ", Toast.LENGTH_SHORT).show();
                         }
 
                     }
@@ -305,13 +312,15 @@ public class MainActivity extends AppCompatActivity {
 
     private void setProjectInFireStore(String titleString, String descriptionString, String time) {
 // Create a new user with a first and last name
+        Long id = System.currentTimeMillis();
         Map<String, Object> noteMap = new HashMap<>();
         noteMap.put("title", titleString);
         noteMap.put("description", descriptionString);
         noteMap.put("time", time);
+        noteMap.put("id", id);
 
 // Add a new document with a generated ID
-        db.collection("note").document(time)
+        db.collection("note").document(String.valueOf(id))
                 .set(noteMap)
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override

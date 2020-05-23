@@ -1,10 +1,10 @@
 <resources>
-    <string name="app_name">Simble Note App</string>
+    <string name="app_name">Simple Reminder App</string>
     <string name="title">title</string>
     <string name="description">description</string>
     <string name="time">Time</string>
-    <string name="create_note">Create Note</string>
-    <string name="add_note"> Add_Note</string>
+    <string name="create_note">Create Reminder</string>
+    <string name="add_note"> Add_Reminder</string>
     <string name="title_hint">enter title…</string>
     <string name="description_hint">enter description…</string>
 </resources>
