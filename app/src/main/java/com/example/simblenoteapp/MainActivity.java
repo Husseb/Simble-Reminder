@@ -2,9 +2,8 @@ package com.example.simblenoteapp;
 
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
-import android.content.Context;
 import android.content.DialogInterface;
-import android.graphics.Color;
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.text.format.DateFormat;
@@ -35,14 +34,12 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 
-import java.io.IOException;
 import java.util.Calendar;
-import java.util.HashMap;
 import java.util.Locale;
-import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
     public static String TAG = MainActivity.class.getSimpleName();
@@ -69,7 +66,24 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        Query query = db.collection("note").orderBy("id");
+        cheakAuth();
+        final Calendar cal33 = Calendar.getInstance(Locale.ENGLISH);
+        cal33.setTimeInMillis(System.currentTimeMillis());
+
+        Log.d("tttt", cal33.getTimeInMillis() + "");
+
+        String year = DateFormat.format("yyyy", cal33).toString();
+        String day = DateFormat.format("d", cal33).toString();
+        String month = DateFormat.format("M", cal33).toString();
+
+        final Calendar cal55 = Calendar.getInstance(Locale.ENGLISH);
+        int i = Integer.parseInt(month);
+        cal55.set(Integer.parseInt(year), i, Integer.parseInt(day), 0, 0);
+
+        Query query = db.collection("note").orderBy("time")
+                .whereEqualTo("uid", FirebaseAuth.getInstance().getCurrentUser().getUid())
+                .whereGreaterThan("time", cal55.getTimeInMillis());
+
         FirestoreRecyclerOptions<Note> options = null;
 
         options = new FirestoreRecyclerOptions.Builder<Note>()
@@ -85,8 +99,12 @@ public class MainActivity extends AppCompatActivity {
             @Override
             protected void onBindViewHolder(@NonNull MyHolder holder, int position, @NonNull final Note note) {
                 holder.name.setText(note.getTitle());
+                Log.d("tttt", "6: " + note.getTime());
+
+//                holder.describtionNoteTv.setText(note.getDescription());
+                long abs = cal55.getTimeInMillis();
+
                 holder.describtionNoteTv.setText(note.getDescription());
-                holder.time.setText(note.getTime());
 
                 Calendar cal1 = Calendar.getInstance(Locale.ENGLISH);
                 cal1.setTimeInMillis(System.currentTimeMillis());
@@ -95,7 +113,7 @@ public class MainActivity extends AppCompatActivity {
                 String month1 = DateFormat.format("M", cal1).toString();
 
                 Calendar cal = Calendar.getInstance(Locale.ENGLISH);
-                cal.setTimeInMillis(Long.parseLong(note.getTime()));
+                cal.setTimeInMillis(note.getTime());
                 String year = DateFormat.format("y", cal).toString();
                 String day = DateFormat.format("d", cal).toString();
                 String month = DateFormat.format("M", cal).toString();
@@ -125,7 +143,6 @@ public class MainActivity extends AppCompatActivity {
                             holder.signLate.setBackgroundColor(0xff92E334);
                         } else if (ff >= 3) {
                             reminedDay = ff;
-
                             holder.signLate.setBackgroundColor(0xffFFCD36);
                         } else if (ff == 0) {
                             holder.signLate.setBackgroundColor(0xffFB3A3A);
@@ -166,7 +183,7 @@ public class MainActivity extends AppCompatActivity {
                         } else if (finalReminedDay > 0) {
                             Toast.makeText(MainActivity.this, "reminded " + finalReminedDay + " Day", Toast.LENGTH_SHORT).show();
 
-                        }  else if (finalReminedDay == 0) {
+                        } else if (finalReminedDay == 0) {
                             Toast.makeText(MainActivity.this, "Thats Today", Toast.LENGTH_SHORT).show();
 
                         } else if (finalRemiendMonth > 0) {
@@ -180,7 +197,7 @@ public class MainActivity extends AppCompatActivity {
                 holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
                     @Override
                     public boolean onLongClick(View v) {
-                        showImagePicasoDialog(note.getTime());
+                        showImagePicasoDialog(note.getTime() + "");
 
                         return false;
                     }
@@ -191,6 +208,13 @@ public class MainActivity extends AppCompatActivity {
         recyclerview.setAdapter(recyclerAdapter);
         recyclerAdapter.startListening();
 
+    }
+
+    private void cheakAuth() {
+        if (FirebaseAuth.getInstance().getCurrentUser() == null) {
+            startActivity(new Intent(getApplicationContext(), LoginActivity.class));
+            finish();
+        }
     }
 
     private void showImagePicasoDialog(final String primary) {
@@ -233,6 +257,21 @@ public class MainActivity extends AppCompatActivity {
             case R.id.add:
                 // Action goes here
                 bottomSheetDialog.show();
+                return true;
+            case R.id.logout:
+                // Action goes here
+                FirebaseFirestore.getInstance().collection("token")
+                        .document(FirebaseAuth.getInstance().getCurrentUser().getUid()).delete().addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (task.isSuccessful()) {
+                            FirebaseAuth.getInstance().signOut();
+                            startActivity(new Intent(getApplicationContext(), LoginActivity.class));
+                            finish();
+                        }
+                    }
+                });
+
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -300,9 +339,9 @@ public class MainActivity extends AppCompatActivity {
                         Toast.makeText(MainActivity.this, "Please Set Date", Toast.LENGTH_SHORT).show();
                     } else {
 
-                        cal.set(date[0], date[1], date[2]);
+                        cal.set(date[0], date[1], date[2], 0, 2);
 
-                        setProjectInFireStore(titleString, descriptionString, String.valueOf(cal.getTimeInMillis()));
+                        setProjectInFireStore(titleString, descriptionString, cal.getTimeInMillis());
                     }
 
                 }
@@ -310,21 +349,17 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void setProjectInFireStore(String titleString, String descriptionString, String time) {
+    private void setProjectInFireStore(String titleString, String descriptionString, long time) {
 // Create a new user with a first and last name
-        Long id = System.currentTimeMillis();
-        Map<String, Object> noteMap = new HashMap<>();
-        noteMap.put("title", titleString);
-        noteMap.put("description", descriptionString);
-        noteMap.put("time", time);
-        noteMap.put("id", id);
-
+        String id = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        Note note = new Note(titleString, descriptionString, time, id);
 // Add a new document with a generated ID
-        db.collection("note").document(String.valueOf(id))
-                .set(noteMap)
+        db.collection("note").document(System.currentTimeMillis()+"")
+                .set(note)
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
+                        onStart();
                         bottomSheetDialog.hide();
                         title.setText("");
                         description.setText("");
