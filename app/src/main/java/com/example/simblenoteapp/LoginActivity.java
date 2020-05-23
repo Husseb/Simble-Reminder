@@ -1,5 +1,6 @@
 package com.example.simblenoteapp;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -42,6 +43,7 @@ public class LoginActivity extends AppCompatActivity {
     FirebaseFirestore db;
     public GoogleSignInClient mGoogleSignInClient;
     private static final int RC_SIGN_IN = 100;
+    ProgressDialog progressDialog;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -52,6 +54,7 @@ public class LoginActivity extends AppCompatActivity {
         email = findViewById(R.id.username);
         password = findViewById(R.id.password);
         ROI = findViewById(R.id.login);
+        progressDialog =new ProgressDialog(this);
 
         SWGoogle = findViewById(R.id.loginByGoogle);
 
@@ -79,6 +82,9 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void onSignOrRegister() {
+        progressDialog.show();;
+         progressDialog.setMessage("Loading...");
+        progressDialog.setTitle("Signing in app...");
         final String emailString = email.getText().toString().trim();
         if (!TextUtils.isEmpty(emailString)) {
             mAuth.fetchSignInMethodsForEmail(emailString)
@@ -150,11 +156,14 @@ public class LoginActivity extends AppCompatActivity {
                         @Override
                         public void onComplete(@NonNull Task<AuthResult> task) {
                             if (task.isSuccessful()) {
+
                                 // Sign in success, update UI with the signed-in user's information
                                 Log.d("TAG", "createUserWithEmail:success");
                                 registrInFireStore(emailString, mAuth.getUid(), FirebaseInstanceId.getInstance().getToken());
 
                             } else {
+                                progressDialog.hide();;
+
                                 // If sign in fails, display a message to the user.
                                 Toast.makeText(LoginActivity.this, "Authentication failed.",
                                         Toast.LENGTH_SHORT).show();
@@ -164,6 +173,8 @@ public class LoginActivity extends AppCompatActivity {
                         }
                     });
         } else {
+            progressDialog.hide();;
+
             Toast.makeText(this, "Enter The password", Toast.LENGTH_SHORT).show();
         }
     }
@@ -189,6 +200,8 @@ public class LoginActivity extends AppCompatActivity {
                                 @Override
                                 public void onComplete(@NonNull Task<Void> task) {
                                     if (task.isSuccessful()) {
+                                        progressDialog.hide();;
+
                                         startActivity(new Intent(getApplicationContext(), MainActivity.class));
                                         finish();
                                     }
@@ -196,6 +209,8 @@ public class LoginActivity extends AppCompatActivity {
                             }).addOnFailureListener(new OnFailureListener() {
                                 @Override
                                 public void onFailure(@NonNull Exception e) {
+                                    progressDialog.hide();;
+
                                     Toast.makeText(LoginActivity.this, "faild", Toast.LENGTH_SHORT).show();
                                     Log.w("TAG", "Error adding document", e);
                                 }
@@ -205,6 +220,8 @@ public class LoginActivity extends AppCompatActivity {
                 }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
+                progressDialog.hide();;
+
                 Toast.makeText(LoginActivity.this, "faild", Toast.LENGTH_SHORT).show();
                 Log.w("TAG", "Error adding document", e);
             }
@@ -251,6 +268,7 @@ public class LoginActivity extends AppCompatActivity {
                                     @Override
                                     public void onComplete(@NonNull Task<Void> task) {
                                         if (task.isSuccessful()) {
+
                                             Toast.makeText(LoginActivity.this, "Welcome", Toast.LENGTH_SHORT).show();
                                         } else {
                                             Toast.makeText(LoginActivity.this, "failed signIn", Toast.LENGTH_SHORT).show();
@@ -258,6 +276,8 @@ public class LoginActivity extends AppCompatActivity {
                                     }
                                 });
                             }
+                            progressDialog.hide();;
+
                             startActivity(new Intent(getApplicationContext(), MainActivity.class));
                             finish();
 

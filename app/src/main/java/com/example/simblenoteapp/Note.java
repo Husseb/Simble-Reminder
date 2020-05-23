@@ -3,17 +3,26 @@ package com.example.simblenoteapp;
 public class Note {
     private String title, description;
 
-    public Note() {
+    long time;
+    String uid,id;
+
+    public String getId() {
+        return id;
     }
 
-    long time;
-    String uid;
+    public void setId(String id) {
+        this.id = id;
+    }
 
-    public Note(String title, String description, long time,String uid) {
+    public Note(String title, String description, long time, String uid, String id) {
         this.title = title;
         this.description = description;
         this.time = time;
         this.uid = uid;
+        this.id = id;
+    }
+
+    public Note() {
     }
 
     public String getTitle() {

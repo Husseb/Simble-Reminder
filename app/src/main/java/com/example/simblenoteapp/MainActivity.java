@@ -2,6 +2,7 @@ package com.example.simblenoteapp;
 
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -50,6 +51,7 @@ public class MainActivity extends AppCompatActivity {
     FirebaseFirestore db;
     EditText title, description;
     TextView dateTv;
+    ProgressDialog progressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,162 +63,162 @@ public class MainActivity extends AppCompatActivity {
         recyclerview = findViewById(R.id.recyclerview);
         recyclerview.setLayoutManager(new LinearLayoutManager(this));
         createBoteSheeteDialog();
+        progressDialog =new ProgressDialog(this);
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        cheakAuth();
-        final Calendar cal33 = Calendar.getInstance(Locale.ENGLISH);
-        cal33.setTimeInMillis(System.currentTimeMillis());
 
-        Log.d("tttt", cal33.getTimeInMillis() + "");
+        if (FirebaseAuth.getInstance().getCurrentUser() == null) {
+            startActivity(new Intent(MainActivity.this, LoginActivity.class));
+            finish();
+            Log.e("tttt", "ffffffffff");
+        } else {
 
-        String year = DateFormat.format("yyyy", cal33).toString();
-        String day = DateFormat.format("d", cal33).toString();
-        String month = DateFormat.format("M", cal33).toString();
+            final Calendar cal33 = Calendar.getInstance(Locale.ENGLISH);
+            cal33.setTimeInMillis(System.currentTimeMillis());
 
-        final Calendar cal55 = Calendar.getInstance(Locale.ENGLISH);
-        int i = Integer.parseInt(month);
-        cal55.set(Integer.parseInt(year), i, Integer.parseInt(day), 0, 0);
+            Log.d("tttt", cal33.getTimeInMillis() + "");
 
-        Query query = db.collection("note").orderBy("time")
-                .whereEqualTo("uid", FirebaseAuth.getInstance().getCurrentUser().getUid())
-                .whereGreaterThan("time", cal55.getTimeInMillis());
+            String year = DateFormat.format("yyyy", cal33).toString();
+            String day = DateFormat.format("d", cal33).toString();
+            String month = DateFormat.format("M", cal33).toString();
 
-        FirestoreRecyclerOptions<Note> options = null;
+            final Calendar cal55 = Calendar.getInstance(Locale.ENGLISH);
+            int i = Integer.parseInt(month);
+            cal55.set(Integer.parseInt(year), i, Integer.parseInt(day), 0, 0);
 
-        options = new FirestoreRecyclerOptions.Builder<Note>()
-                .setQuery(query, Note.class).build();
+            Query query = db.collection("note").orderBy("time")
+                    .whereEqualTo("uid", FirebaseAuth.getInstance().getCurrentUser().getUid())
+                    .whereGreaterThan("time", cal55.getTimeInMillis());
 
-        FirestoreRecyclerAdapter<Note, MyHolder> recyclerAdapter = new FirestoreRecyclerAdapter<Note, MyHolder>(options) {
-            @NonNull
-            @Override
-            public MyHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-                return new MyHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.note_item, parent, false));
-            }
+            FirestoreRecyclerOptions<Note> options = null;
 
-            @Override
-            protected void onBindViewHolder(@NonNull MyHolder holder, int position, @NonNull final Note note) {
-                holder.name.setText(note.getTitle());
-                Log.d("tttt", "6: " + note.getTime());
+            options = new FirestoreRecyclerOptions.Builder<Note>()
+                    .setQuery(query, Note.class).build();
+
+            FirestoreRecyclerAdapter<Note, MyHolder> recyclerAdapter = new FirestoreRecyclerAdapter<Note, MyHolder>(options) {
+                @NonNull
+                @Override
+                public MyHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+                    return new MyHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.note_item, parent, false));
+                }
+
+                @Override
+                protected void onBindViewHolder(@NonNull MyHolder holder, int position, @NonNull final Note note) {
+                    holder.name.setText(note.getTitle());
+                    Log.d("tttt", "6: " + note.getTime());
 
 //                holder.describtionNoteTv.setText(note.getDescription());
-                long abs = cal55.getTimeInMillis();
+                    long abs = cal55.getTimeInMillis();
 
-                holder.describtionNoteTv.setText(note.getDescription());
+                    holder.describtionNoteTv.setText(note.getDescription());
 
-                Calendar cal1 = Calendar.getInstance(Locale.ENGLISH);
-                cal1.setTimeInMillis(System.currentTimeMillis());
-                String year1 = DateFormat.format("y", cal1).toString();
-                String day1 = DateFormat.format("d", cal1).toString();
-                String month1 = DateFormat.format("M", cal1).toString();
+                    Calendar cal1 = Calendar.getInstance(Locale.ENGLISH);
+                    cal1.setTimeInMillis(System.currentTimeMillis());
+                    String year1 = DateFormat.format("y", cal1).toString();
+                    String day1 = DateFormat.format("d", cal1).toString();
+                    String month1 = DateFormat.format("M", cal1).toString();
 
-                Calendar cal = Calendar.getInstance(Locale.ENGLISH);
-                cal.setTimeInMillis(note.getTime());
-                String year = DateFormat.format("y", cal).toString();
-                String day = DateFormat.format("d", cal).toString();
-                String month = DateFormat.format("M", cal).toString();
+                    Calendar cal = Calendar.getInstance(Locale.ENGLISH);
+                    cal.setTimeInMillis(note.getTime());
+                    String year = DateFormat.format("y", cal).toString();
+                    String day = DateFormat.format("d", cal).toString();
+                    String month = DateFormat.format("M", cal).toString();
 
-                cal.set(Integer.parseInt(year), (Integer.parseInt(month) - 2), Integer.parseInt(day));
+                    cal.set(Integer.parseInt(year), (Integer.parseInt(month) - 2), Integer.parseInt(day));
 
-                String year3 = DateFormat.format("y", cal).toString();
-                String day3 = DateFormat.format("d", cal).toString();
-                String month3 = DateFormat.format("M", cal).toString();
+                    String year3 = DateFormat.format("y", cal).toString();
+                    String day3 = DateFormat.format("d", cal).toString();
+                    String month3 = DateFormat.format("M", cal).toString();
 
-                long y = Long.parseLong(year) - Long.parseLong(year1);
-                long M = Long.parseLong(month) - Long.parseLong(month1) - 1;
-                long d = Long.parseLong(day) - Long.parseLong(day1);
+                    long y = Long.parseLong(year) - Long.parseLong(year1);
+                    long M = Long.parseLong(month) - Long.parseLong(month1) - 1;
+                    long d = Long.parseLong(day) - Long.parseLong(day1);
 
-                holder.signLate.setBackgroundColor(0xffFB3A3A);
-                long reminedDay = 0, remiendMonth = 0, reminedYear = 0;
-                if (y > 0) {
-                    holder.signLate.setBackgroundColor(0xff92E334);
-                    reminedYear = y;
-                } else if (M > 0) {
-                    holder.signLate.setBackgroundColor(0xff92E334);
-                    remiendMonth = M;
-                    if (M == 1) {
-                        long ff = Long.parseLong(day) + (30 - Long.parseLong(day1));
-                        if (ff >= 7) {
-                            reminedDay = ff;
-                            holder.signLate.setBackgroundColor(0xff92E334);
-                        } else if (ff >= 3) {
-                            reminedDay = ff;
-                            holder.signLate.setBackgroundColor(0xffFFCD36);
-                        } else if (ff == 0) {
-                            holder.signLate.setBackgroundColor(0xffFB3A3A);
-                            reminedDay = ff;
-                        } else {
-                            reminedDay = ff;
-
-                            holder.signLate.setBackgroundColor(0xffFB3A3A);
-                        }
-                    }
-
-                } else if (d >= 0) {
-                    if (d >= 7) {
-                        reminedDay = d;
+                    holder.signLate.setBackgroundColor(0xffFB3A3A);
+                    long reminedDay = 0, remiendMonth = 0, reminedYear = 0;
+                    if (y > 0) {
                         holder.signLate.setBackgroundColor(0xff92E334);
-                    } else if (d >= 3) {
-                        reminedDay = d;
-                        holder.signLate.setBackgroundColor(0xffFFCD36);
-                    } else if (d == 0) {
-                        holder.signLate.setBackgroundColor(0xffFB3A3A);
-                        reminedDay = d;
-                    } else {
-                        reminedDay = d;
-                        holder.signLate.setBackgroundColor(0xffFB3A3A);
-                    }
-                }
-                holder.time.setText(day3 + "/" + month3 + "/" + year3);
+                        reminedYear = y;
+                    } else if (M > 0) {
+                        holder.signLate.setBackgroundColor(0xff92E334);
+                        remiendMonth = M;
+                        if (M == 1) {
+                            long ff = Long.parseLong(day) + (30 - Long.parseLong(day1));
+                            if (ff >= 7) {
+                                reminedDay = ff;
+                                holder.signLate.setBackgroundColor(0xff92E334);
+                            } else if (ff >= 3) {
+                                reminedDay = ff;
+                                holder.signLate.setBackgroundColor(0xffFFCD36);
+                            } else if (ff == 0) {
+                                holder.signLate.setBackgroundColor(0xffFB3A3A);
+                                reminedDay = ff;
+                            } else {
+                                reminedDay = ff;
 
-                final long finalReminedYear = reminedYear;
-                final long finalRemiendMonth = remiendMonth;
-                final long finalReminedDay = reminedDay;
-                holder.itemView.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-
-                        if (finalReminedYear > 0) {
-                            Toast.makeText(MainActivity.this, "reminded " + finalReminedYear + " Year", Toast.LENGTH_SHORT).show();
-                        } else if (finalReminedDay > 0) {
-                            Toast.makeText(MainActivity.this, "reminded " + finalReminedDay + " Day", Toast.LENGTH_SHORT).show();
-
-                        } else if (finalReminedDay == 0) {
-                            Toast.makeText(MainActivity.this, "Thats Today", Toast.LENGTH_SHORT).show();
-
-                        } else if (finalRemiendMonth > 0) {
-                            Toast.makeText(MainActivity.this, "reminded " + finalRemiendMonth + " Month", Toast.LENGTH_SHORT).show();
-                        } else {
-                            Toast.makeText(MainActivity.this, "The Time Lasted ", Toast.LENGTH_SHORT).show();
+                                holder.signLate.setBackgroundColor(0xffFB3A3A);
+                            }
                         }
 
+                    } else if (d >= 0) {
+                        if (d >= 7) {
+                            reminedDay = d;
+                            holder.signLate.setBackgroundColor(0xff92E334);
+                        } else if (d >= 3) {
+                            reminedDay = d;
+                            holder.signLate.setBackgroundColor(0xffFFCD36);
+                        } else if (d == 0) {
+                            holder.signLate.setBackgroundColor(0xffFB3A3A);
+                            reminedDay = d;
+                        } else {
+                            reminedDay = d;
+                            holder.signLate.setBackgroundColor(0xffFB3A3A);
+                        }
                     }
-                });
-                holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
-                    @Override
-                    public boolean onLongClick(View v) {
-                        showImagePicasoDialog(note.getTime() + "");
+                    holder.time.setText(day3 + "/" + month3 + "/" + year3);
 
-                        return false;
-                    }
-                });
-            }
-        };
+                    final long finalReminedYear = reminedYear;
+                    final long finalRemiendMonth = remiendMonth;
+                    final long finalReminedDay = reminedDay;
+                    holder.itemView.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
 
-        recyclerview.setAdapter(recyclerAdapter);
-        recyclerAdapter.startListening();
+                            if (finalReminedYear > 0) {
+                                Toast.makeText(MainActivity.this, "reminded " + finalReminedYear + " Year", Toast.LENGTH_SHORT).show();
+                            } else if (finalReminedDay > 0) {
+                                Toast.makeText(MainActivity.this, "reminded " + finalReminedDay + " Day", Toast.LENGTH_SHORT).show();
 
-    }
+                            } else if (finalReminedDay == 0) {
+                                Toast.makeText(MainActivity.this, "Thats Today", Toast.LENGTH_SHORT).show();
 
-    private void cheakAuth() {
-        if (FirebaseAuth.getInstance().getCurrentUser() == null) {
-            startActivity(new Intent(getApplicationContext(), LoginActivity.class));
-            finish();
+                            } else if (finalRemiendMonth > 0) {
+                                Toast.makeText(MainActivity.this, "reminded " + finalRemiendMonth + " Month", Toast.LENGTH_SHORT).show();
+                            } else {
+                                Toast.makeText(MainActivity.this, "The Time Lasted ", Toast.LENGTH_SHORT).show();
+                            }
+
+                        }
+                    });
+                    holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
+                        @Override
+                        public boolean onLongClick(View v) {
+                            showImagePicasoDialog(note.getId() + "");
+
+                            return false;
+                        }
+                    });
+                }
+            };
+
+            recyclerview.setAdapter(recyclerAdapter);
+            recyclerAdapter.startListening();
+
         }
     }
-
     private void showImagePicasoDialog(final String primary) {
         String[] options = {"Delete"};
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -229,6 +231,7 @@ public class MainActivity extends AppCompatActivity {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
                             Toast.makeText(MainActivity.this, "Deleted!!", Toast.LENGTH_SHORT).show();
+                            onStart();
                         }
                     }).addOnFailureListener(new OnFailureListener() {
                         @Override
@@ -340,6 +343,9 @@ public class MainActivity extends AppCompatActivity {
                     } else {
 
                         cal.set(date[0], date[1], date[2], 0, 2);
+                        progressDialog.show();;
+                        progressDialog.setTitle("Added");
+                        progressDialog.setMessage("Loading...");
 
                         setProjectInFireStore(titleString, descriptionString, cal.getTimeInMillis());
                     }
@@ -351,15 +357,17 @@ public class MainActivity extends AppCompatActivity {
 
     private void setProjectInFireStore(String titleString, String descriptionString, long time) {
 // Create a new user with a first and last name
-        String id = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        Note note = new Note(titleString, descriptionString, time, id);
+        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        String id = String.valueOf(System.currentTimeMillis());
+        Note note = new Note(titleString, descriptionString, time, uid,id);
 // Add a new document with a generated ID
-        db.collection("note").document(System.currentTimeMillis()+"")
+        db.collection("note").document(id)
                 .set(note)
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
                         onStart();
+                        progressDialog.hide();
                         bottomSheetDialog.hide();
                         title.setText("");
                         description.setText("");
